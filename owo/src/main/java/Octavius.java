@@ -5,6 +5,7 @@ import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.*;
@@ -13,7 +14,7 @@ import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
 
 public class Octavius {
 
-    public static <Iniciativa, pessoas> void main(String[] args) {
+    public static void main(String[] args) {
         final String token = System.getenv("DISCORD_TOKEN");
         final DiscordClient client = DiscordClient.create(token);
         final GatewayDiscordClient gateway = client.login().block();
@@ -45,38 +46,35 @@ public class Octavius {
                         literal("d.iniciativa").then(argument("iniciativa", greedyString()).executes(context -> {
                                     String iniciativa = getString(context, "iniciativa");
                                     String[] pessoas = iniciativa.split(", ");
-                                    ArrayList<String> iniciativaList = new ArrayList<>(40);
+                                    String[] iniciativaList = new String[40];
                                     int valorIniciativa = 0;
                                     int quantidadePessoas = pessoas.length;
 
-                                    /*
-                                    System.out.println(pessoas[0]);
-                                    System.out.println(pessoas[1]);
-                                    System.out.println(pessoas[2]);
-                                    System.out.println(pessoas[3]);
-                                    System.out.println(quantidadePessoas);
-                                    */
-
                                      int i = 0;
+                                     int u = 0;
+                                     Integer[] checarIniciativa = new Integer[8];
+                                     Integer[] checarDestreza = new Integer[8];
+                                     String[] checarPersonagem = new String[8];
+
                                      while (i<quantidadePessoas) {
                                          Random random = new Random();
                                          int dado = 0;
-
                                          valorIniciativa = 0;
                                          int bonus = 0;
 
                                          bonus = Integer.parseInt(pessoas[i+1]);
-
-                                         /*
-                                         System.out.println("");
-                                         System.out.println(bonus);
-                                         */
 
                                          String personagem = pessoas[i];
 
                                          dado = random.nextInt(19)+1;
 
                                          valorIniciativa = dado+bonus;
+
+                                         checarIniciativa[u] = valorIniciativa;
+                                         checarDestreza[u] = bonus;
+                                         checarPersonagem[u] = personagem;
+                                         String reserva;
+
                                          int finalDado = dado;
                                          int finalValorIniciativa = valorIniciativa;
                                          int finalBonus = bonus;
@@ -104,93 +102,150 @@ public class Octavius {
                                              }
                                          }
 
-/*
-                                         System.out.println(valorIniciativa);
-                                         System.out.println(personagem);
-*/
-                                         System.out.println("a");
+                                         try {
+                                             if (iniciativaList[valorIniciativa] == null) {
+                                                 iniciativaList[valorIniciativa] = personagem;
+                                             } else {
+                                                 for (int y = 0; y < checarPersonagem.length; y++) {
+                                                     if (checarPersonagem[y].equals(iniciativaList[valorIniciativa])) {
+                                                         if (checarIniciativa[y] > checarIniciativa[u]) {
+                                                             if (iniciativaList[valorIniciativa - 1] == null) {
+                                                                 iniciativaList[valorIniciativa - 1] = personagem;
+                                                             } else {
+                                                                 for (int t = 0; t < checarPersonagem.length; t++) {
+                                                                     if (checarPersonagem[t].equals(checarPersonagem[valorIniciativa - 1])) {
+                                                                         if (checarIniciativa[t] >= checarIniciativa[u]) {
+                                                                             iniciativaList[valorIniciativa - 2] = personagem;
+                                                                         } else {
+                                                                             reserva = iniciativaList[valorIniciativa - 1];
+                                                                             iniciativaList[valorIniciativa - 1] = personagem;
+                                                                             iniciativaList[valorIniciativa - 2] = reserva;
+                                                                         }
+                                                                         break;
+                                                                     }
+                                                                 }
+                                                             }
+                                                         } else if (checarIniciativa[y] == checarIniciativa[u]) {
+                                                             if (checarDestreza[y] < checarDestreza[u]) {
+                                                                 reserva = iniciativaList[valorIniciativa];
+                                                                 iniciativaList[valorIniciativa] = personagem;
+                                                                 if (iniciativaList[valorIniciativa - 1] == null) {
+                                                                     iniciativaList[valorIniciativa - 1] = reserva;
+                                                                 } else {
+                                                                     for (int t = 0; t < checarPersonagem.length; t++) {
+                                                                         if (checarPersonagem[t].equals(checarPersonagem[valorIniciativa - 1])) {
+                                                                             if (checarIniciativa[t] >= checarIniciativa[u]) {
+                                                                                 iniciativaList[valorIniciativa - 2] = reserva;
+                                                                             } else {
+                                                                                 String reserva1 = iniciativaList[valorIniciativa - 1];
+                                                                                 iniciativaList[valorIniciativa - 1] = reserva;
+                                                                                 iniciativaList[valorIniciativa - 2] = reserva1;
+                                                                             }
+                                                                             break;
+                                                                         }
+                                                                     }
+                                                                 }
+                                                             } else if (iniciativaList[valorIniciativa - 1] == null) {
+                                                                 iniciativaList[valorIniciativa - 1] = personagem;
+                                                             } else {
+                                                                 for (int t = 0; t < checarPersonagem.length; t++) {
+                                                                     if (checarPersonagem[t].equals(checarPersonagem[valorIniciativa - 1])) {
+                                                                         if (checarIniciativa[t] >= checarIniciativa[u]) {
+                                                                             iniciativaList[valorIniciativa - 2] = personagem;
+                                                                         } else {
+                                                                             reserva = iniciativaList[valorIniciativa - 1];
+                                                                             iniciativaList[valorIniciativa - 1] = personagem;
+                                                                             iniciativaList[valorIniciativa - 2] = reserva;
+                                                                         }
+                                                                         break;
+                                                                     }
+                                                                 }
+                                                             }
+                                                         } else {
+                                                             reserva = iniciativaList[valorIniciativa];
+                                                             iniciativaList[valorIniciativa] = personagem;
+                                                             if (iniciativaList[valorIniciativa - 1] == null) {
+                                                                 iniciativaList[valorIniciativa - 1] = reserva;
+                                                             } else {
+                                                                 for (int t = 0; t < checarPersonagem.length; t++) {
+                                                                     if (checarPersonagem[t].equals(checarPersonagem[u])) {
+                                                                         if (checarIniciativa[t] >= checarIniciativa[u]) {
+                                                                             iniciativaList[valorIniciativa - 2] = reserva;
+                                                                         } else {
+                                                                             String reserva1 = iniciativaList[valorIniciativa - 1];
+                                                                             iniciativaList[valorIniciativa - 1] = reserva;
+                                                                             iniciativaList[valorIniciativa - 2] = reserva1;
+                                                                         }
+                                                                         break;
+                                                                     }
+                                                                 }
+                                                             }
+                                                         }
+                                                     }
+                                                 }
+                                             }
+                                         }catch (NullPointerException ignored){
 
-                                         if (iniciativaList.get(valorIniciativa).isBlank()) {
-                                             System.out.println("a");
-                                             iniciativaList.set(valorIniciativa, personagem);
-                                             System.out.println(valorIniciativa);
-                                             System.out.println(iniciativaList.get(valorIniciativa));
-                                         } else {
-                                             iniciativaList.set(valorIniciativa - 1, personagem);
-                                             System.out.println(valorIniciativa);
-                                             System.out.println(iniciativaList.get(valorIniciativa));
                                          }
-
+                                         u++;
                                          i+=2;
                                      }
-                                     ArrayList<String> mensagemIniciativa = new ArrayList<>(10);
+                                     String[] mensagemIniciativa = new String[10];
 
-                                     int o = 1;
-                                     i = 25;
+                                     int o = 0;
+                                     i = 30;
 
                                      while (i!=0){
-                                         System.out.println(i);
-                                         String nulo;
                                          try {
-                                             nulo = iniciativaList.get(i);
-                                         }catch (IndexOutOfBoundsException ignored){
-                                             nulo = "";
-                                         }
-                                         System.out.println(nulo);
-                                         if (!nulo.equals("")) {
-                                             try {
-                                                 System.out.println(i);
-                                                 mensagemIniciativa.set(o, iniciativaList.get(i));
-                                                 System.out.println(mensagemIniciativa.get(o));
+                                             if (iniciativaList[i] != null) {
+                                                 mensagemIniciativa[o] = iniciativaList[i];
                                                  o++;
-
-                                                 System.out.println("a");
-                                             }catch (IndexOutOfBoundsException ignored){
-
                                              }
-                                         }
+                                         }catch (NullPointerException ignored){
 
+                                         }
                                          i-=1;
                                      }
-                                     System.out.println(mensagemIniciativa.get(0));
 
                                      int numeroDePessoas = quantidadePessoas/2;
                                      String mensagemFinal;
                                      switch (numeroDePessoas) {
                                          case 2:
-                                             mensagemFinal = mensagemIniciativa.get(0) + ", " + mensagemIniciativa.get(1);
+                                             mensagemFinal = mensagemIniciativa[0] + ", " + mensagemIniciativa[1];
                                              break;
 
                                          case 3:
-                                             mensagemFinal = mensagemIniciativa.get(0) + ", " + mensagemIniciativa.get(1) + ", " + mensagemIniciativa.get(2);
+                                             mensagemFinal = mensagemIniciativa[0] + ", " + mensagemIniciativa[1] + ", " +
+                                                     mensagemIniciativa[2];
                                              break;
 
                                          case 4:
-                                             mensagemFinal = mensagemIniciativa.get(0) + ", " + mensagemIniciativa.get(1) + ", " +
-                                                     mensagemIniciativa.get(2) + ", " + mensagemIniciativa.get(3);
+                                             mensagemFinal = mensagemIniciativa[0] + ", " + mensagemIniciativa[1] + ", " +
+                                                     mensagemIniciativa[2] + ", " + mensagemIniciativa[3];
                                              break;
 
                                          case 5:
-                                             mensagemFinal = mensagemIniciativa.get(0) + ", " + mensagemIniciativa.get(1) + ", " +
-                                                     mensagemIniciativa.get(2) + ", " + mensagemIniciativa.get(3) + ", " + mensagemIniciativa.get(4);
-
+                                             mensagemFinal = mensagemIniciativa[0] + ", " + mensagemIniciativa[1] + ", " +
+                                                     mensagemIniciativa[2] + ", " + mensagemIniciativa[3] + ", " + mensagemIniciativa[4];
+                                             break;
 
                                          case 6:
-                                             mensagemFinal = mensagemIniciativa.get(0) + ", " + mensagemIniciativa.get(1) + ", " +
-                                                     mensagemIniciativa.get(2) + ", " + mensagemIniciativa.get(3) + ", " + mensagemIniciativa.get(4) +
-                                                     ", " + mensagemIniciativa.get(5);
+                                             mensagemFinal = mensagemIniciativa[0] + ", " + mensagemIniciativa[1] + ", " +
+                                                     mensagemIniciativa[2] + ", " + mensagemIniciativa[3] + ", " + mensagemIniciativa[4] +
+                                                     ", " + mensagemIniciativa[5];
                                              break;
 
                                          case 7:
-                                             mensagemFinal = mensagemIniciativa.get(0) + ", " + mensagemIniciativa.get(1) + ", " +
-                                                     mensagemIniciativa.get(2) + ", " + mensagemIniciativa.get(3) + ", " + mensagemIniciativa.get(4) +
-                                                     ", " + mensagemIniciativa.get(5) + ", " + mensagemIniciativa.get(6);
+                                             mensagemFinal = mensagemIniciativa[0] + ", " + mensagemIniciativa[1] + ", " +
+                                                     mensagemIniciativa[2] + ", " + mensagemIniciativa[3] + ", " + mensagemIniciativa[4] +
+                                                     ", " + mensagemIniciativa[5] + ", " + mensagemIniciativa[6];
+                                             break;
 
                                          case 8:
-                                             mensagemFinal = mensagemIniciativa.get(0) + ", " + mensagemIniciativa.get(1) + ", " +
-                                                     mensagemIniciativa.get(2) + ", " + mensagemIniciativa.get(3) + ", " + mensagemIniciativa.get(4) +
-                                                     ", " + mensagemIniciativa.get(5) + ", " + mensagemIniciativa.get(6) + ", " +
-                                                     mensagemIniciativa.get(7);
+                                             mensagemFinal = mensagemIniciativa[0] + ", " + mensagemIniciativa[1] + ", " +
+                                                     mensagemIniciativa[2] + ", " + mensagemIniciativa[3] + ", " + mensagemIniciativa[4] +
+                                                     ", " + mensagemIniciativa[5] + ", " + mensagemIniciativa[6] + ", " +
+                                                     mensagemIniciativa[7];
                                              break;
 
                                          default:
